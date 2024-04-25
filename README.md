@@ -78,3 +78,7 @@ With Thymeleaf:
 > [Spring Boot Thymeleaf Multiple File Upload example](https://www.bezkoder.com/thymeleaf-multiple-file-upload/)
 
 > [Spring Boot upload Image and Display with Thymeleaf](https://www.bezkoder.com/spring-boot-image-upload-thymeleaf/)
+
+## Insert variable folder in Application.properties
+
+
