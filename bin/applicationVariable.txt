@@ -1,0 +1,12 @@
+import org.springframework.beans.factory.annotation.Value;
+
+	@Value("${spring.folder}")
+	private String folder;
+
+	private final Path root = Paths.get("uploads");
+
+	@Override
+	public void init() {
+		try {
+			Path folderPath = Paths.get(folder);
+			Files.createDirectories(folderPath);

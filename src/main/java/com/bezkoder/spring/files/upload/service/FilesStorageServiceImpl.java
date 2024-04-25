@@ -18,8 +18,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FilesStorageServiceImpl implements FilesStorageService {
 
-	@Value("${spring.folder}")
+	@Value("${jbelt.upload.folder}")
 	private String folder;
+
+	private Path pathFolder;
 
 	private final Path root = Paths.get("uploads");
 
@@ -27,8 +29,8 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	public void init() {
 		try {
 			Files.createDirectories(root);
-			Path folderPath = Paths.get(folder);
-			Files.createDirectories(folderPath);
+			pathFolder = Paths.get(folder);
+			Files.createDirectories(pathFolder);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not initialize folder for upload!");
 		}
@@ -37,7 +39,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	@Override
 	public void save(MultipartFile file) {
 		try {
-			Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()));
+			Files.copy(file.getInputStream(), this.pathFolder.resolve(file.getOriginalFilename()));
 		} catch (Exception e) {
 			if (e instanceof FileAlreadyExistsException) {
 				throw new RuntimeException("A file of that name already exists.");
@@ -50,7 +52,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	@Override
 	public Resource load(String filename) {
 		try {
-			Path file = root.resolve(filename);
+			Path file = pathFolder.resolve(filename);
 			Resource resource = new UrlResource(file.toUri());
 
 			if (resource.exists() || resource.isReadable()) {
@@ -66,7 +68,7 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 	@Override
 	public boolean delete(String filename) {
 		try {
-			Path file = root.resolve(filename);
+			Path file = pathFolder.resolve(filename);
 			return Files.deleteIfExists(file);
 		} catch (IOException e) {
 			throw new RuntimeException("Error: " + e.getMessage());
@@ -75,13 +77,13 @@ public class FilesStorageServiceImpl implements FilesStorageService {
 
 	@Override
 	public void deleteAll() {
-		FileSystemUtils.deleteRecursively(root.toFile());
+		FileSystemUtils.deleteRecursively(pathFolder.toFile());
 	}
 
 	@Override
 	public Stream<Path> loadAll() {
 		try {
-			return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
+			return Files.walk(this.pathFolder, 1).filter(path -> !path.equals(this.pathFolder)).map(this.pathFolder::relativize);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not load the files!");
 		}
